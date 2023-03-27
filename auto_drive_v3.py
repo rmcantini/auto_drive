@@ -1,39 +1,73 @@
-import os
-import shutil
+import tkinter as tk
+from tkinter import filedialog
+import configparser
 
-# Define the source and destination paths
-src_folder = "path//to//folderA"
-dest_folder = "path//to//folderB"
+# Load the configuration file
+config = configparser.ConfigParser()
+config.read("config.ini")
+
+# If the "Settings" section doesn't exist, create it
+if "Settings" not in config:
+    config["Settings"] = {}
+
+# Function to handle folder selection and saving
+def choose_folder(key_name, label):
+    folder_path = filedialog.askdirectory()
+    config["Settings"][key_name] = folder_path
+    with open("config.ini", "w") as configfile:
+        config.write(configfile)
+    label.config(text=f"{key_name} path: {folder_path}"[-32:])
+    print(f"{key_name} path saved to config.ini file.")
 
 
-def new_task(src_folder, dest_folder)
-    shutil.copytree(src_folder, dest_folder, dirs_exist_ok=False)
+# Create the Tkinter window
+root = tk.Tk()
+root.title("Minha janelinha top")
 
+# Set the window size and position
+root.geometry("540x156")
+screen_width = root.winfo_screenwidth()
+screen_height = root.winfo_screenheight()
+x = (screen_width - root.winfo_width()) // 2 - 100
+y = (screen_height - root.winfo_height()) // 2 - 100
+root.geometry(f"+{x}+{y}")
 
-def task_update(src_folder, dest_folder)
-    # Iterate over the files in the source folder
-    for root, dirs, files in os.walk(src_folder):
-        # Get the relative path of the current directory
-        rel_dir = os.path.relpath(root, src_folder)
+# Create two frames, one for each column
+frame1 = tk.Frame(root)
+frame2 = tk.Frame(root)
 
-        # Create the corresponding directory in the destination folder
-        dest_dir = os.path.join(dest_folder, rel_dir)
-        os.makedirs(dest_dir, exist_ok=True)
+# Add widgets to the first frame (column 0)
+label1 = tk.Label(frame1, text="")
+button1 = tk.Button(
+    frame1, text="Choose Local Folder", command=lambda: choose_folder("Folder1", label1)
+)
+if "Folder1" in config["Settings"]:
+    folder_path = config["Settings"]["Folder1"]
+    label1.config(text=f"Folder1 path: {folder_path}"[-32:])
+label1.pack()
+button1.pack()
 
-        # Copy the files from the source directory to the destination directory
-        for file in files:
-            src_file = os.path.join(root, file)
-            dest_file = os.path.join(dest_dir, file)
+# Add widgets to the second frame (column 1)
+label2 = tk.Label(frame2, text="")
+button2 = tk.Button(
+    frame2, text="Choose Drive Folder", command=lambda: choose_folder("Folder2", label2)
+)
+if "Folder2" in config["Settings"]:
+    folder_path = config["Settings"]["Folder2"]
+    label2.config(text=f"Folder2 path: {folder_path}"[-32:])
+label2.pack()
+button2.pack()
 
-            # Copy the file only if it does not exist in the destination directory - or if it's different
-            if not os.path.exists(dest_file) or not os.path.samefile(src_file, dest_file):
-                shutil.copy2(src_file, dest_file)
+# Use grid geometry manager to place the frames
+frame1.grid(row=0, column=0, sticky="n")
+frame2.grid(row=0, column=1, sticky="s")
 
-def run_all():
-    try:
-        new_task(src_folder, dest_folder)
-    except ValueError as e:
-        print("The folder task already exists: ", e)
-        print("Running task update instead")
-        task_update(src_folder, dest_folder)
+# Center the columns in the window
+root.columnconfigure(0, weight=1)
+root.columnconfigure(1, weight=1)
 
+# Create the action button
+button3 = tk.Button(root, text="Update Drive", width=16, height=2)
+button3.place(relx=0.5, rely=1.0, anchor=tk.S, y=-8)
+
+root.mainloop()
