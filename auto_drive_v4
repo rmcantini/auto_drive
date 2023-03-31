@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import filedialog
 import configparser
 
+
 # Load the configuration file
 config = configparser.ConfigParser()
 config.read("config.ini")
@@ -10,8 +11,10 @@ config.read("config.ini")
 if "Settings" not in config:
     config["Settings"] = {}
 
+
 # Function to handle folder selection and saving
 def choose_folder(key_name, label):
+
     folder_path = filedialog.askdirectory()
     config["Settings"][key_name] = folder_path
     with open("config.ini", "w") as configfile:
