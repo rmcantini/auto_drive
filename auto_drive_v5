@@ -1,8 +1,8 @@
 import tkinter as tk
 import shutil
+import os
 from tkinter import filedialog
 import configparser
-
 
 # Load the configuration file
 config = configparser.ConfigParser()
@@ -12,11 +12,13 @@ config.read("config.ini")
 if "Settings" not in config:
     config["Settings"] = {}
 
-
 # Function to handle folder selection and saving
 def choose_folder(key_name, label):
-
     folder_path = filedialog.askdirectory()
+    if not folder_path:
+        # The user canceled the operation
+        return
+
     config["Settings"][key_name] = folder_path
     with open("config.ini", "w") as configfile:
         config.write(configfile)
@@ -24,12 +26,20 @@ def choose_folder(key_name, label):
     print(f"{key_name} path saved to config.ini file.")
 
 
-# The Functions that actually do stuff 
-def new_task(src_folder, dest_folder)
+# The functions that actually do stuff
+def new_task(src_folder, dest_folder):
     shutil.copytree(src_folder, dest_folder, dirs_exist_ok=False)
 
 
-def task_update(src_folder, dest_folder)
+def copy_task(src_folder, dest_folder):
+    try:
+        shutil.copytree(src_folder, dest_folder, dirs_exist_ok=False)
+    except FileExistsError:
+        # The folder already exists
+        raise ValueError("Folder task already exists")
+
+
+def update_task(src_folder, dest_folder):
     # Iterate over the files in the source folder
     for root, dirs, files in os.walk(src_folder):
         # Get the relative path of the current directory
@@ -45,8 +55,20 @@ def task_update(src_folder, dest_folder)
             dest_file = os.path.join(dest_dir, file)
 
             # Copy the file only if it does not exist in the destination directory - or if it's different
-            if not os.path.exists(dest_file) or not os.path.samefile(src_file, dest_file):
+            if not os.path.exists(dest_file) or not os.path.samefile(
+                src_file, dest_file
+            ):
                 shutil.copy2(src_file, dest_file)
+
+
+def perform_task(local_folder, drive_folder):
+    try:
+        copy_task(local_folder, drive_folder)
+    except ValueError as e:
+        print("Error: ", e)
+        print("Running task update instead")
+        update_task(local_folder, drive_folder)
+
 
 def up_go(src_folder, dest_folder):
     try:
@@ -59,7 +81,7 @@ def up_go(src_folder, dest_folder):
 
 # Create the Tkinter window
 root = tk.Tk()
-root.title("Minha janelinha top")
+root.title("File Sync")
 
 # Set the window size and position
 root.geometry("540x156")
@@ -104,7 +126,13 @@ root.columnconfigure(0, weight=1)
 root.columnconfigure(1, weight=1)
 
 # Create the action button
-button3 = tk.Button(root, text="Update Drive", width=16, height=2, command=lambda: up_go(config["Settings"]["Folder1"], config["Settings"]["Folder2"]))
+button3 = tk.Button(
+    root,
+    text="Update Drive",
+    width=16,
+    height=2,
+    command=lambda: up_go(config["Settings"]["Folder1"], config["Settings"]["Folder2"]),
+)
 button3.place(relx=0.5, rely=1.0, anchor=tk.S, y=-8)
 
 root.mainloop()

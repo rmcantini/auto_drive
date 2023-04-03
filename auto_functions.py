@@ -2,8 +2,6 @@ import os
 import shutil
 
 # Define the source and destination paths
-src_folder = "path//to//folderA"
-dest_folder = "path//to//folderB"
 
 
 def new_task(src_folder, dest_folder)
@@ -29,10 +27,10 @@ def task_update(src_folder, dest_folder)
             if not os.path.exists(dest_file) or not os.path.samefile(src_file, dest_file):
                 shutil.copy2(src_file, dest_file)
 
-
-try:
-    new_task(src_folder, dest_folder)
-except ValueError as e:
-    print("The folder task already exists: ", e)
-    print("Running task update instead")
-    task_update(src_folder, dest_folder)
+def up_go(src_folder, dest_folder):
+    try:
+        new_task(src_folder, dest_folder)
+    except ValueError as e:
+        print("The folder task already exists: ", e)
+        print("Running task update instead")
+        task_update(src_folder, dest_folder)
