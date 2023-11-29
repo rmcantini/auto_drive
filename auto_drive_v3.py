@@ -11,6 +11,8 @@ if "Settings" not in config:
     config["Settings"] = {}
 
 # Function to handle folder selection and saving
+
+
 def choose_folder(key_name, label):
     folder_path = filedialog.askdirectory()
     config["Settings"][key_name] = folder_path
